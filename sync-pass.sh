@@ -15,8 +15,6 @@ PASS_STORE_DIR="${PASS_STORE_DIR:-$HOME/.password-store/}"
 logger "$APPNAME - Pass store path: $PASS_STORE_DIR"
 GIT="git -C $PASS_STORE_DIR"
 
-logger "$APPNAME - Syncing passwords to git"
-
 NUM_CHANGES=$($GIT rev-list --count origin/main...main)
 if [ $NUM_CHANGES -gt 0 ]; then
   $GIT push
