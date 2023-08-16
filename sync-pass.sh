@@ -4,7 +4,7 @@
 set -euf -o pipefail
 
 APPNAME="SYNC-PASS"
-CONF="${CRON_CONF:-$XDG_CONFIG_HOME/cron/sync-pass.sh}"
+CONF="${CRON_CONF:-$HOME/.config/cron/sync-pass.sh}"
 if [ -f "$CONF" ]; then
   logger "$APPNAME - CONF found"
   source $CONF
@@ -17,15 +17,10 @@ GIT="git -C $PASS_STORE_DIR"
 
 logger "$APPNAME - Syncing passwords to git"
 
-NUM_PASS=$($GIT status --short | wc -l)
-if [ $NUM_PASS -gt 0 ]; then
-  logger "$APPNAME - Adding $NUM_PASS new passwords"
-  $GIT add -A
-  DATE=$(date --utc '+%Y-%m-%dT%H:%M:%S (%Z)')
-  $GIT commit -m "$DATE"
-  logger "$APPNAME - Committed $NUM_PASS (message: $DATE)"
+NUM_CHANGES=$($GIT rev-list --count origin/main...main)
+if [ $NUM_CHANGES -gt 0 ]; then
   $GIT push
-  logger "$APPNAME - Pushed to $($GIT remote get-url origin)"
+  logger "$APPNAME - Pushed $NUM_CHANGES changes to $($GIT remote get-url origin)"
 else
   logger "$APPNAME - No new passwords found"
 fi
